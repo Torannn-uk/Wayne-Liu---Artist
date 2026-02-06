@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: black;
+  color: #19c113;
+  font-family: 'Source Code Pro', monospace;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== 首页 ===== */
+.home .center {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.home h1 {
+  font-size: 3rem;
+}
+
+.enter a {
+  color: #19c113;
+  text-decoration: none;
+  margin-top: 20px;
+}
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  position: fixed;
+  left: -160px;
+  top: 0;
+  width: 160px;
+  height: 100vh;
+  background: #000;
+  padding-top: 40px;
+  transition: left 0.3s ease;
+}
+
+.sidebar.show {
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar li {
+  margin: 20px;
+}
+
+.sidebar a {
+  color: #19c113;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* ===== 内容 ===== */
+.content {
+  margin-left: 40px;
+  padding: 40px;
+}
+
+.split {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.visual {
+  flex: 1;
+  border-bottom: 1px solid #19c113;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.placeholder {
+  opacity: 0.4;
+}
+
+.text {
+  flex: 1;
+  padding-top: 20px;
+}

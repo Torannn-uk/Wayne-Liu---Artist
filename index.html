@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wayne Liu | Artist Portfolio</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Fjalla+One&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <style>
+        .v-application, .v-application * {
+            font-family: 'Fjalla One', sans-serif !important;
+            text-transform: uppercase;
+        }
+        html { scroll-behavior: smooth; }
+        .section { min-height: 100vh; display: flex; align-items: center; padding: 80px 0; }
+
+        /* ===== Hero Section ===== */
+        .hero-section {
+            position: relative;
+            background-image: url('assets/homepage/1.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+        }
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.2); 
+            z-index: 1;
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-title { font-size: clamp(3rem, 10vw, 7rem); letter-spacing: 12px; color: white !important; }
+
+        /* ===== 通用布局工具 ===== */
+        .rect-image-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9; 
+            background: #f5f5f5;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eee; 
+            transition: all 0.4s ease;
+        }
+        .rect-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+        .book-cover-portrait {
+            width: 100%;
+            aspect-ratio: 4 / 5.5; 
+            background: #f5f5f5;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eee;
+        }
+        .book-cover-portrait img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ===== Art Works 交互布局 ===== */
+        .grid-item { cursor: pointer; transition: transform 0.3s; }
+        .grid-item:hover { transform: translateY(-5px); }
+        
+        .nav-slider-container { width: 100%; display: flex; align-items: center; justify-content: center; position: relative; padding: 0 40px; }
+        .nav-row-scrollable { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 15px; padding: 10px; scroll-behavior: smooth; max-width: 1000px; scrollbar-width: none; }
+        .nav-row-scrollable::-webkit-scrollbar { display: none; }
+        
+        .nav-item-small { flex: 0 0 120px; cursor: pointer; opacity: 0.4; transition: 0.3s; }
+        .nav-item-small:hover { opacity: 1; }
+        .nav-arrow { position: absolute; z-index: 2; background: white !important; }
+        
+        .nav-item-large { width: 700px; max-width: 95%; text-align: center; margin: 0 auto; }
+
+        /* ===== Books Detail Grid ===== */
+        .pdf-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; width: 100%; }
+        @media (max-width: 960px) { .pdf-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 600px) { .pdf-grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .pdf-img-box { width: 100%; background: white; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .pdf-img-box.portrait { aspect-ratio: 1 / 1.414; }
+        .pdf-img-box.horizontal { aspect-ratio: 1.5 / 1; }
+        .pdf-img-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ===== Viewer Overlay ===== */
+        .viewer-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.98); z-index: 3000; display:flex; align-items:center; justify-content:center; }
+        .viewer-content-full { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+        .viewer-image-container { max-width: 90%; max-height: 85vh; display: flex; align-items: center; justify-content: center; }
+        .viewer-image-container img, .viewer-image-container model-viewer { max-width: 100%; max-height: 85vh; object-fit: contain; box-shadow: 0 5px 30px rgba(0,0,0,0.08); }
+        .page-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3200; background: rgba(255,255,255,0.8) !important; }
+        .page-nav-btn.prev { left: 30px; }
+        .page-nav-btn.next { right: 30px; }
+        .close-btn-fixed { position: absolute; top: 30px; right: 30px; z-index: 3300; cursor: pointer; }
+    </style>
+</head>
+
+<body>
+<div id="app">
+<v-app>
+
+    <v-app-bar app flat color="white" light>
+        <v-toolbar-title style="letter-spacing: 4px; font-weight: bold;">WAYNE LIU</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn text href="#about">About</v-btn>
+        <v-btn text href="#artworks">Art Works</v-btn>
+        <v-btn text href="#books">Books</v-btn>
+        <v-btn outlined href="#contact" class="ml-4">Contact</v-btn>
+    </v-app-bar>
+
+    <section class="section hero-section">
+        <v-container class="text-center hero-content">
+            <h1 class="hero-title" data-aos="fade-up">WAYNE LIU</h1>
+        </v-container>
+    </section>
+
+    <section class="section" id="about">
+        <v-container>
+            <v-row justify="center">
+                <v-col cols="12" md="10" lg="8">
+                    <div class="text-center mb-10">
+                        <h2 class="text-h3">About</h2>
+                    </div>
+
+                    <div class="mb-12">
+                        <p class="text-h5 text-left" style="line-height: 1.8; font-weight: 300; text-transform: none;">
+                            Based in London, my work uses painting and installation to explore figures and spaces that seem intact, but are already slightly out of place.
+                        </p>
+                    </div>
+
+                    <v-row>
+                        <v-col cols="12" md="5">
+                            <h3 class="text-h5 mb-4 border-bottom pb-2">Education</h3>
+                            <div style="text-transform: none; font-weight: 300; line-height: 1.6;">
+                                <div class="mb-4">
+                                    <div class="font-weight-bold">Goldsmiths, University of London</div>
+                                    <div>MFA Fine Art, 2024 – Present</div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="font-weight-bold">Sichuan Fine Arts Institute</div>
+                                    <div>2023 – 2024</div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="font-weight-bold">Macau University of Science and Technology</div>
+                                    <div>BA, 2019 – 2023</div>
+                                </div>
+                            </div>
+                        </v-col>
+
+                        <v-spacer></v-spacer>
+
+                        <v-col cols="12" md="6">
+                            <h3 class="text-h5 mb-4 border-bottom pb-2">Exhibitions</h3>
+                            <div style="text-transform: none; font-weight: 300; line-height: 1.6;">
+                                <div class="mb-4">
+                                    <div class="grey--text font-weight-bold mb-1">2025</div>
+                                    <div>Thresholds, Chemist Gallery, London</div>
+                                    <div>The First International Exhibition of White Dot Art in London, Bharatiya Vidya Bhavan Gallery, London</div>
+                                    <div>Contemporary Exhibition of Great Artists in London 2025, Bharatiya Vidya Bhavan Gallery, London</div>
+                                    <div>The First Contemporary Linear Art Exhibition of China, Shi Art Museum, Zhengzhou, China</div>
+                                </div>
+                                <div>
+                                    <div class="grey--text font-weight-bold mb-1">2024</div>
+                                    <div>Pick’n’Mix, Laurie Grove Baths Building, London</div>
+                                </div>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-col>
+            </v-row>
+        </v-container>
+    </section>
+
+    <section class="section" id="artworks">
+        <v-container>
+            <div class="d-flex align-center mb-10">
+                <v-btn v-if="viewMode === 'focus'" icon large @click="resetView" class="mr-4">
+                    <v-icon color="black">mdi-arrow-left</v-icon>
+                </v-btn>
+                <h2 class="text-h4">Art Works</h2>
+            </div>
+
+            <v-row v-if="viewMode === 'grid'">
+                <v-col cols="12" sm="6" md="3" v-for="cat in categories" :key="cat.key">
+                    <div class="grid-item" @click="selectCategory(cat.key)">
+                        <div class="rect-image-wrapper">
+                            <img v-if="cat.image" :src="cat.image">
+                        </div>
+                        <h3 class="mt-4 black--text text-center">{{ cat.title }}</h3>
+                        <div class="caption grey--text text-center">{{ cat.desc }}</div>
+                    </div>
+                </v-col>
+            </v-row>
+
+            <div v-else class="focus-container">
+                <div class="nav-slider-container mb-12">
+                    <v-btn icon small class="nav-arrow" style="left:0" @click="scrollNav(-200)"><v-icon>mdi-chevron-left</v-icon></v-btn>
+                    <div class="nav-row-scrollable" ref="navScroll">
+                        <div v-for="cat in categories" :key="cat.key" class="nav-item-small"
+                             :style="activeCategory === cat.key ? 'opacity: 1; border-bottom: 2px solid black;' : ''"
+                             @click="activeCategory = cat.key">
+                            <div class="rect-image-wrapper"><img :src="cat.image"></div>
+                            <div class="caption text-center mt-1" style="font-size: 10px;">{{ cat.title }}</div>
+                        </div>
+                    </div>
+                    <v-btn icon small class="nav-arrow" style="right:0" @click="scrollNav(200)"><v-icon>mdi-chevron-right</v-icon></v-btn>
+                </div>
+
+                <div class="nav-row-active mb-12" v-if="activeCatObject">
+                    <div class="nav-item-large">
+                        <div class="rect-image-wrapper"><img :src="activeCatObject.image"></div>
+                        <h3 class="mt-4 black--text">{{ activeCatObject.title }}</h3>
+                        <p class="grey--text caption">{{ activeCatObject.desc }}</p>
+                    </div>
+                </div>
+
+                <v-row>
+                    <v-col cols="12" md="4" v-for="p in filteredProjects" :key="p.id">
+                        <v-card @click="openProject(p.id)" elevation="0" class="mb-4">
+                            <v-img :src="p.image" class="grey lighten-4" contain max-height="500"></v-img>
+                            <v-card-text class="px-0">
+                                <div class="black--text font-weight-bold">{{ p.title }}</div>
+                                <div class="caption grey--text">{{ p.year }} / {{ p.skills }}</div>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </div>
+        </v-container>
+    </section>
+
+    <section class="section grey lighten-5" id="books">
+        <v-container>
+            <div class="d-flex align-center mb-12">
+                <v-btn v-if="bookViewMode === 'focus'" icon large @click="bookViewMode = 'grid'" class="mr-4">
+                    <v-icon color="black">mdi-arrow-left</v-icon>
+                </v-btn>
+                <h2 class="text-h4">Books</h2>
+            </div>
+
+            <v-row v-if="bookViewMode === 'grid'">
+                <v-col cols="12" md="4" v-for="(book, index) in books" :key="index">
+                    <v-card class="grid-item" elevation="0" @click="selectBook(index)">
+                        <div class="book-cover-portrait"><img :src="book.cover"></div>
+                        <v-card-text class="px-0">
+                            <div class="text-h6 black--text">{{ book.title }}</div>
+                            <div class="caption grey--text">{{ book.info }}</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+
+            <div v-else class="book-detail-container">
+                <v-row class="mb-10" align="center">
+                    <v-col cols="12" md="4"><div class="book-cover-portrait"><img :src="activeBook.cover"></div></v-col>
+                    <v-col cols="12" md="8">
+                        <h3 class="text-h3 mb-4">{{ activeBook.title }}</h3>
+                        <p class="text-h6 font-weight-light" style="text-transform: none;">{{ activeBook.description }}</p>
+                    </v-col>
+                </v-row>
+                <div class="pdf-grid">
+                    <div v-for="pageNum in activeBookPages" :key="pageNum" @click="zoomPage(pageNum)" class="pdf-page-item">
+                        <div :class="['pdf-img-box', activeBook.isHorizontal ? 'horizontal' : 'portrait']">
+                            <img :src="getPagePath(activeBook, pageNum)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </v-container>
+    </section>
+
+    <section class="section" id="contact">
+        <v-container class="text-center">
+            <h2 class="text-h3 mb-10">Contact</h2>
+            <div class="mt-8">
+                <v-btn text x-large href="mailto:wliu010@campus.goldsmiths.ac.uk">Email:wliu010@campus.goldsmiths.ac.uk</v-btn>
+             <v-btn text x-large href="https://www.instagram.com/liuweiyuanwayne">instagram: liuweiyuanwayne</v-btn>
+
+            </div>
+        </v-container>
+    </section>
+
+    <div v-if="viewerOpen" class="viewer-overlay">
+        <div class="close-btn-fixed" @click="viewerOpen=false"><v-icon x-large>mdi-close</v-icon></div>
+        <div class="viewer-content-full">
+            <v-btn icon x-large class="page-nav-btn prev" @click="navigateViewer(-1)"><v-icon>mdi-chevron-left</v-icon></v-btn>
+            <div class="viewer-image-container">
+                <img :src="zoomImageUrl || currentProject.image">
+            </div>
+            <v-btn icon x-large class="page-nav-btn next" @click="navigateViewer(1)"><v-icon>mdi-chevron-right</v-icon></v-btn>
+        </div>
+    </div>
+
+</v-app>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+new Vue({
+    el:'#app',
+    vuetify:new Vuetify(),
+    data:{
+        viewMode: 'grid', 
+        bookViewMode: 'grid',
+        activeCategory: null,
+        activeBookIndex: 0,
+        viewerOpen: false,
+        isProjectView: true,
+        currentIndex: 0,
+        zoomImageUrl: null,
+        zoomPageIndex: 0,
+
+        categories:[
+            { key:'1', title:'Almost Normal', desc:'This ongoing series focuses on states of near-normality, where figures, objects, and situations remain quiet, intact, yet subtly displaced.', image:'assets/artworks title/1.jpg' },
+            { key:'2', title:'Works on Paper 2.0', desc:'A series developed through rapid, intuitive painting, where figures emerge through repetition, distortion, and physical engagement with the surface.', image:'assets/artworks title/2.jpg' },
+            { key:'3', title:'expose', desc:'EXPOSE is a body of work that uses free painting and projective imagery to examine psychological projection, interpretation, and the instability of meaning.', image:'assets/artworks title/3.jpg' },
+            { key:'4', title:'Works on Paper 1.0', desc:'A series exploring the intersection of visual rhythm and ritualistic movement.', image:'assets/artworks title/4.jpg' },
+            { key:'5', title:'collections', desc:'This series examines how remembered figures become stereotyped and flattened, drawing on visual languages of Japanese moe culture to explore the quiet alienation of memory.', image:'assets/artworks title/5.jpg' }
+        ],
+
+        books:[
+            { title: 'Unnamed Book', info: '2025', folder: 'Unnamed Book', cover: 'assets/book/Unnamed Book/cover/0001.jpg', pageStart: 2, pageEnd: 37, isHorizontal: true, description: 'This book is about a painting exhibition by Wayne and Yuchen——one that exists not in reality,but in imagination.' },
+            { title: 'Wayne in Goldsmiths', info: '2025/Year 1 Portfolio', folder: 'Wayne in Goldsmiths PORTFOLIO of Year 1', cover: 'assets/book/Wayne in Goldsmiths PORTFOLIO of Year 1/cover/0001.jpg', pageStart: 2, pageEnd: 104, isHorizontal: false, description: 'This artist book documents all works produced during my first year at Goldsmiths, serving as a continuous record of process, shifts, and unresolved decisions.' },
+            { title: 'Expose/暴露', info: '2025', folder: '暴露', cover: 'assets/book/暴露/cover/0001.jpg', pageStart: 2, pageEnd: 26, isHorizontal: false, description: 'EXPOSE is a self-published artist magazine exploring the relationship between free painting, psychological projection, and interpretation through image and text.' }
+        ],
+
+        categoryMap:{ '1':[], '2':[], '3':[], '4':[], '5':[] },
+        projects:[]
+    },
+    created() {
+        this.loadAlmostNormalImages();
+        this.loadFall2025Images();
+        this.loadExposeImages();
+        this.loadSummer2025Images();
+        this.loadCollectionImages();
+    },
+    computed:{
+        activeCatObject() { return this.categories.find(c => c.key === this.activeCategory); },
+        filteredProjects() {
+            const ids = this.categoryMap[this.activeCategory] || [];
+            return this.projects.filter(p => ids.includes(p.id));
+        },
+        currentProject() { return this.projects[this.currentIndex] || {}; },
+        activeBook() { return this.books[this.activeBookIndex] || {}; },
+        activeBookPages() {
+            let pages = [];
+            for (let i = this.activeBook.pageStart; i <= this.activeBook.pageEnd; i++) pages.push(i);
+            return pages;
+        }
+    },
+    methods:{
+        loadAlmostNormalImages() {
+            const files = ["0002", "0003", "0005", "0009", "0010", "0011", "0013", "0016", "0018", "0022", "0024", "0025", "0027", "0028", "0029", "0031", "0033", "0034", "0035", "0036", "0037"];
+            files.forEach((f, i) => {
+                const id = 100 + i;
+                this.projects.push({ id, title: `Almost Normal ${i + 1}`, year: '2026', image: `assets/Almost Normal/187A${f}.JPG`, skills: '' });
+                this.categoryMap['1'].push(id);
+            });
+        },
+        loadFall2025Images() {
+            const artworks = [
+                { file: "FullSizeRender 1.jpg", title: "Gamble", year: "2025", dim: "150cm x 236cm" },
+                { file: "FullSizeRender 4.jpg", title: "Fat Safari", year: "2025", dim: "150cm x 230cm" },
+                { file: "FullSizeRender 5.jpg", title: "Staring", year: "2025", dim: "150cm x 245cm" },
+                { file: "FullSizeRender 6.jpg", title: "Hotbed of Envy", year: "2025", dim: "150cm x 225cm" },
+                { file: "FullSizeRender 7.jpg", title: "Hopeless", year: "2025", dim: "150cm x 240cm" },
+                { file: "FullSizeRender 8.jpg", title: "Fall", year: "2025", dim: "150cm x 257cm" },
+                { file: "FullSizeRender 9.jpg", title: "Binge Eating", year: "2025", dim: "150cm x 226cm" },
+                { file: "FullSizeRender.jpg", title: "Take A Break From The Hustle And Bustle", year: "2025", dim: "280cm x 150cm" },
+                { file: "IMG_0477.jpg", title: "Unnamed1", year: "2025", dim: "2800cm x 150cm" },
+                { file: "IMG_0478.jpg", title: "unnamed2", year: "2025", dim: "2800cm x 150cm" },
+                { file: "IMG_1178.jpg", title: "Angels", year: "2025", dim: "126cm x 150cm" },
+                { file: "IMG_1420.jpg", title: "Bow To The...", year: "2025", dim: "150cm x 224cm" },
+                { file: "IMG_1421.jpg", title: "I Allowed Everything Happen Around Me, Include Pigeon Fly Across The Train To The End. Welcome, The First Snow! Even Im Fucking Cloud.", year: "2025", dim: "150cm x 236cm" },
+                { file: "IMG_1571.jpg", title: "Cleavage", year: "2025", dim: "150cm x 175cm" },
+                { file: "IMG_1581.jpg", title: "Celebrate", year: "2025", dim: "150cm x 191cm" },
+                { file: "未命名作品 20.jpg", title: "Body-Time", year: "2025", dim: "100cm x 150cm" },
+                { file: "34.jpg", title: "他就这样打了一个大的呵欠，又被呵欠压倒了 He gave a big yawn like this and was then overcome by the yawn again.", year: "2025", dim: "100cm x 150cm" }
+             ];
+
+            artworks.forEach((art, i) => {
+                const id = 200 + i;
+                this.projects.push({ id, title: art.title, year: art.year, image: `assets/2025fall/${art.file}`, skills: `Acrylics on paper, ${art.dim}` });
+                this.categoryMap['2'].push(id);
+            });
+        },
+        loadExposeImages() {
+            const files = ["未命名作品 34.jpg", "未命名作品 35.jpg",  "未命名作品 37.jpg","未命名作品 38.jpg","未命名作品 36.jpg", "未命名作品 39.jpg", "未命名作品 40.jpg", "未命名作品 41.jpg"];
+            files.forEach((f, i) => {
+                const id = 300 + i;
+                this.projects.push({ id, title: `Unnamed ${i+1}`, year: '2024', image: `assets/expose/${f}`, skills: 'comprehensive materials' });
+                this.categoryMap['3'].push(id);
+            });
+        },
+        loadSummer2025Images() {
+            const artworks = [
+                { file: "IMG_6566.jpg", title: "我们必须逃避 we must to run away", year: "2025", dim: "150cm x 214cm" },
+                { file: "IMG_6606.jpg", title: "hear thee light", year: "2025", dim: "150cm x 172cm" },
+                { file: "IMG_6608.jpg", title: "dream of liberty", year: "2025", dim: "227cm x 150cm" },
+                { file: "IMG_6633.jpg", title: "i'm death", year: "2025", dim: "283cm x 150cm" },
+                { file: "未命名作品 25.jpg", title: "bully", year: "2025", dim: "150cm x195cm" },
+                { file: "未命名作品 26.jpg", title: "spring at brockley", year: "2025", dim: "150cm x 172cm" },
+                { file: "未命名作品 27.jpg", title: "halo", year: "2025", dim: "150cm x 163cm" },
+                { file: "未命名作品 28.jpg", title: "end", year: "2025", dim: "150cm x 190cm" },
+                { file: "未命名作品 30.jpg", title: "bedroom", year: "2025", dim: "35cm x 46cm" },
+                { file: "未命名作品 31.jpg", title: "i'm right", year: "2025", dim: "150cm x 190cm" },
+                { file: "未命名作品 32.jpg", title: "i am happy", year: "2025", dim: "150cm x 172cm" },
+                { file: "未命名作品 33.jpg", title: "wish for rich", year: "2025", dim: "150cm x 284cm" }
+            ];
+
+            artworks.forEach((art, i) => {
+                const id = 400 + i;
+                this.projects.push({ id, title: art.title, year: art.year, image: `assets/2025summer/${art.file}`, skills: `Acrylics on paper, ${art.dim}` });
+                this.categoryMap['4'].push(id);
+            });
+        },
+        loadCollectionImages() {
+            const files = [ "3.jpg", "4.jpg", "5.jpg", "6.jpg"];
+            files.forEach((f, i) => {
+                const id = 500 + i;
+                this.projects.push({ id, title: `Unnamed Piece ${i+1}`, year: '2024', image: `assets/Collection/${f}`, skills: 'Mixed Media' });
+                this.categoryMap['5'].push(id);
+            });
+        },
+
+        selectCategory(k) { this.activeCategory = k; this.viewMode = 'focus'; },
+        resetView() { this.viewMode = 'grid'; this.activeCategory = null; },
+        scrollNav(o) { this.$refs.navScroll.scrollLeft += o; },
+        openProject(id){ this.currentIndex = this.projects.findIndex(p => p.id === id); this.isProjectView = true; this.zoomImageUrl = null; this.viewerOpen = true; },
+        selectBook(i) { this.activeBookIndex = i; this.bookViewMode = 'focus'; },
+        getPagePath(b, n) { return `assets/book/${b.folder}/${n.toString().padStart(4, '0')}.jpg`; },
+        zoomPage(n) { this.zoomPageIndex = n; this.isProjectView = false; this.zoomImageUrl = this.getPagePath(this.activeBook, n); this.viewerOpen = true; },
+        navigateViewer(d) {
+            if (this.isProjectView) {
+                let n = this.currentIndex + d;
+                if (n >= 0 && n < this.projects.length) this.currentIndex = n;
+            } else {
+                let p = this.zoomPageIndex + d;
+                if (p >= this.activeBook.pageStart && p <= this.activeBook.pageEnd) {
+                    this.zoomPageIndex = p; this.zoomImageUrl = this.getPagePath(this.activeBook, p);
+                }
+            }
+        }
+    }
+})
+AOS.init({ duration: 800, once: true });
+</script>
+</body>
+</html>
